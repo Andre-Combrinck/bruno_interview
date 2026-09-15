@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="Bruno.Api/Bruno.Api.csproj" />
+  <Project Path="Bruno.Application/Bruno.Application.csproj" />
+  <Project Path="Bruno.Domain/Bruno.Domain.csproj" />
+  <Project Path="Bruno.Infrastructure/Bruno.Infrastructure.csproj" />
+  <Project Path="Bruno.Tests/Bruno.Tests.csproj" />
+</Solution>
