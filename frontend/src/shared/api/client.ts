@@ -15,11 +15,13 @@ export const apiClient = axios.create({
 export function getErrorMessage(error: unknown): string {
   if (axios.isAxiosError(error)) {
     const data = error.response?.data as ApiErrorBody | undefined;
-    if (data?.errors) {
-      return Object.values(data.errors).flat().join(' ');
+    const fieldErrors = data?.errors ?? data?.Errors;
+    if (fieldErrors) {
+      return Object.values(fieldErrors).flat().join(' ');
     }
-    if (data?.message) {
-      return data.message;
+    const message = data?.message ?? data?.Message;
+    if (message) {
+      return message;
     }
     return error.message;
   }

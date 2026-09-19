@@ -61,6 +61,6 @@ public sealed class ExceptionHandlingMiddleware
 
         context.Response.ContentType = "application/json";
         context.Response.StatusCode = (int)status;
-        await context.Response.WriteAsync(JsonSerializer.Serialize(payload));
+        await context.Response.WriteAsync(JsonSerializer.Serialize(payload, ApiJsonSerializer.Options));
     }
 }

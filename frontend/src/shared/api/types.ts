@@ -40,6 +40,8 @@ export interface PagedResult<T> {
 }
 
 export interface ApiErrorBody {
-  message: string;
+  message?: string;
+  Message?: string;
   errors?: Record<string, string[]>;
+  Errors?: Record<string, string[]>;
 }

@@ -30,7 +30,8 @@ public sealed class ApiKeyMiddleware
         {
             context.Response.StatusCode = StatusCodes.Status401Unauthorized;
             context.Response.ContentType = "application/json";
-            await context.Response.WriteAsync(JsonSerializer.Serialize(new ApiError { Message = "Invalid or missing API key." }));
+            await context.Response.WriteAsync(
+                JsonSerializer.Serialize(new ApiError { Message = "Invalid or missing API key." }, ApiJsonSerializer.Options));
             return;
         }
 
