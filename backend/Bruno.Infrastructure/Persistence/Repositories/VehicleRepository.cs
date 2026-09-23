@@ -1,5 +1,6 @@
 using Bruno.Application.Common.Interfaces;
 using Bruno.Domain.Entities;
+using Bruno.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 
 namespace Bruno.Infrastructure.Persistence.Repositories;
@@ -24,7 +25,7 @@ public sealed class VehicleRepository : IVehicleRepository
         Guid? excludeId = null,
         CancellationToken cancellationToken = default)
     {
-        var normalized = registrationNumber.Trim().ToUpperInvariant();
+        var normalized = RegistrationNumber.Normalize(registrationNumber);
         return await _db.Vehicles
             .IgnoreQueryFilters()
             .AnyAsync(

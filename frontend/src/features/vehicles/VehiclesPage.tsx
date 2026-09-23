@@ -7,9 +7,16 @@ import type { Vehicle } from '../../shared/api/types';
 import { ConfirmDialog, LoadingSkeleton, Modal } from '../../shared/components/ui';
 import { useToast } from '../../shared/hooks/useToast';
 import { useCreateVehicle, useDeleteVehicle, useUpdateVehicle, useVehicles, type VehicleInput } from './api';
+import {
+  isValidSouthAfricanRegistration,
+  REGISTRATION_INVALID_MESSAGE,
+} from './registrationNumber';
 
 const schema = z.object({
-  registrationNumber: z.string().min(1, 'Required'),
+  registrationNumber: z
+    .string()
+    .min(1, 'Required')
+    .refine(isValidSouthAfricanRegistration, REGISTRATION_INVALID_MESSAGE),
   make: z.string().min(1, 'Required'),
   model: z.string().min(1, 'Required'),
   year: z.number().int().min(1980),
@@ -204,7 +211,10 @@ export function VehiclesPage() {
         <form className="stack-form" onSubmit={onSubmit}>
           <label>
             Registration
-            <input {...form.register('registrationNumber')} />
+            <input {...form.register('registrationNumber')} placeholder="CA123456 or AB12CD GP" />
+            {form.formState.errors.registrationNumber ? (
+              <p className="error-text">{form.formState.errors.registrationNumber.message}</p>
+            ) : null}
           </label>
           <label>
             Make

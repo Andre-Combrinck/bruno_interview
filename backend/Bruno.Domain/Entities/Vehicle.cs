@@ -27,7 +27,7 @@ public sealed class Vehicle : Entity
 
         return new Vehicle
         {
-            RegistrationNumber = registrationNumber.Trim().ToUpperInvariant(),
+            RegistrationNumber = ValueObjects.RegistrationNumber.Normalize(registrationNumber),
             Make = make.Trim(),
             Model = model.Trim(),
             Year = year,
@@ -46,7 +46,7 @@ public sealed class Vehicle : Entity
 
         Validate(registrationNumber, make, model, year, dailyRate);
 
-        RegistrationNumber = registrationNumber.Trim().ToUpperInvariant();
+        RegistrationNumber = ValueObjects.RegistrationNumber.Normalize(registrationNumber);
         Make = make.Trim();
         Model = model.Trim();
         Year = year;
@@ -73,10 +73,7 @@ public sealed class Vehicle : Entity
 
     private static void Validate(string registrationNumber, string make, string model, int year, decimal dailyRate)
     {
-        if (string.IsNullOrWhiteSpace(registrationNumber))
-        {
-            throw new DomainException("Registration number is required.");
-        }
+        ValueObjects.RegistrationNumber.ValidateOrThrow(registrationNumber);
 
         if (string.IsNullOrWhiteSpace(make))
         {
