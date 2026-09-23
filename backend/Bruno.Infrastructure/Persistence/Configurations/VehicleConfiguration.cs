@@ -10,7 +10,7 @@ internal sealed class VehicleConfiguration : IEntityTypeConfiguration<Vehicle>
     {
         builder.ToTable("Vehicles");
         builder.HasKey(x => x.Id);
-        builder.Property(x => x.RegistrationNumber).HasMaxLength(32).IsRequired();
+        builder.Property(x => x.RegistrationNumber).HasMaxLength(12).IsRequired();
         builder.Property(x => x.Make).HasMaxLength(100).IsRequired();
         builder.Property(x => x.Model).HasMaxLength(100).IsRequired();
         builder.Property(x => x.DailyRate).HasPrecision(18, 2);

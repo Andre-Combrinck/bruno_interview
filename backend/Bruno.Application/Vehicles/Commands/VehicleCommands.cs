@@ -3,6 +3,7 @@ using Bruno.Application.Common.Interfaces;
 using Bruno.Application.Common.Mappings;
 using Bruno.Domain.Common;
 using Bruno.Domain.Entities;
+using Bruno.Domain.ValueObjects;
 using FluentValidation;
 using MediatR;
 
@@ -19,7 +20,10 @@ public sealed class CreateVehicleCommandValidator : AbstractValidator<CreateVehi
 {
     public CreateVehicleCommandValidator()
     {
-        RuleFor(x => x.RegistrationNumber).NotEmpty().MaximumLength(32);
+        RuleFor(x => x.RegistrationNumber)
+            .NotEmpty()
+            .Must(RegistrationNumber.IsValid)
+            .WithMessage(RegistrationNumber.InvalidMessage);
         RuleFor(x => x.Make).NotEmpty().MaximumLength(100);
         RuleFor(x => x.Model).NotEmpty().MaximumLength(100);
         RuleFor(x => x.Year).InclusiveBetween(1980, DateTime.UtcNow.Year + 1);
@@ -65,7 +69,10 @@ public sealed class UpdateVehicleCommandValidator : AbstractValidator<UpdateVehi
     public UpdateVehicleCommandValidator()
     {
         RuleFor(x => x.Id).NotEmpty();
-        RuleFor(x => x.RegistrationNumber).NotEmpty().MaximumLength(32);
+        RuleFor(x => x.RegistrationNumber)
+            .NotEmpty()
+            .Must(RegistrationNumber.IsValid)
+            .WithMessage(RegistrationNumber.InvalidMessage);
         RuleFor(x => x.Make).NotEmpty().MaximumLength(100);
         RuleFor(x => x.Model).NotEmpty().MaximumLength(100);
         RuleFor(x => x.Year).InclusiveBetween(1980, DateTime.UtcNow.Year + 1);
