@@ -66,4 +66,55 @@ public class CommandHandlerTests
 
         await act.Should().ThrowAsync<DomainException>().WithMessage("*existing bookings*");
     }
+
+    [Fact]
+    public async Task RestoreVehicleCommand_restores_soft_deleted_vehicle()
+    {
+        var vehicle = Vehicle.Create("CA111222", "Toyota", "Corolla", 2022, 100m);
+        vehicle.SoftDelete();
+
+        var vehicles = new Mock<IVehicleRepository>();
+        var uow = new Mock<IUnitOfWork>();
+        vehicles.Setup(v => v.GetByIdIncludingDeletedAsync(vehicle.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(vehicle);
+        uow.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
+
+        var handler = new RestoreVehicleCommandHandler(vehicles.Object, uow.Object);
+        await handler.Handle(new RestoreVehicleCommand(vehicle.Id), CancellationToken.None);
+
+        vehicle.IsDeleted.Should().BeFalse();
+        vehicles.Verify(v => v.Update(vehicle), Times.Once);
+        uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task RestoreVehicleCommand_rejects_missing_vehicle()
+    {
+        var vehicles = new Mock<IVehicleRepository>();
+        var uow = new Mock<IUnitOfWork>();
+        vehicles.Setup(v => v.GetByIdIncludingDeletedAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Vehicle?)null);
+
+        var handler = new RestoreVehicleCommandHandler(vehicles.Object, uow.Object);
+
+        var act = async () => await handler.Handle(new RestoreVehicleCommand(Guid.NewGuid()), CancellationToken.None);
+
+        await act.Should().ThrowAsync<DomainException>().WithMessage("Vehicle not found.");
+    }
+
+    [Fact]
+    public async Task RestoreVehicleCommand_rejects_active_vehicle()
+    {
+        var vehicle = Vehicle.Create("CA111222", "Toyota", "Corolla", 2022, 100m);
+        var vehicles = new Mock<IVehicleRepository>();
+        var uow = new Mock<IUnitOfWork>();
+        vehicles.Setup(v => v.GetByIdIncludingDeletedAsync(vehicle.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(vehicle);
+
+        var handler = new RestoreVehicleCommandHandler(vehicles.Object, uow.Object);
+
+        var act = async () => await handler.Handle(new RestoreVehicleCommand(vehicle.Id), CancellationToken.None);
+
+        await act.Should().ThrowAsync<DomainException>().WithMessage("Vehicle is not deleted.");
+    }
 }

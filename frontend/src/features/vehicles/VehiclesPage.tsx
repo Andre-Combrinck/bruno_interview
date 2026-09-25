@@ -6,7 +6,7 @@ import { getErrorMessage } from '../../shared/api/client';
 import type { Vehicle } from '../../shared/api/types';
 import { ConfirmDialog, LoadingSkeleton, Modal } from '../../shared/components/ui';
 import { useToast } from '../../shared/hooks/useToast';
-import { useCreateVehicle, useDeleteVehicle, useUpdateVehicle, useVehicles, type VehicleInput } from './api';
+import { useCreateVehicle, useDeleteVehicle, useRestoreVehicle, useUpdateVehicle, useVehicles, type VehicleInput } from './api';
 import {
   isValidSouthAfricanRegistration,
   REGISTRATION_INVALID_MESSAGE,
@@ -33,11 +33,13 @@ export function VehiclesPage() {
   const [editing, setEditing] = useState<Vehicle | null>(null);
   const [creating, setCreating] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<Vehicle | null>(null);
+  const [pendingRestore, setPendingRestore] = useState<Vehicle | null>(null);
 
   const query = useVehicles(search, includeDeleted, page);
   const createMutation = useCreateVehicle();
   const updateMutation = useUpdateVehicle();
   const deleteMutation = useDeleteVehicle();
+  const restoreMutation = useRestoreVehicle();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -99,6 +101,19 @@ export function VehiclesPage() {
       await deleteMutation.mutateAsync(pendingDelete.id);
       showSuccess('Vehicle soft-deleted');
       setPendingDelete(null);
+    } catch (error) {
+      showError(getErrorMessage(error));
+    }
+  };
+
+  const confirmRestore = async () => {
+    if (!pendingRestore) {
+      return;
+    }
+    try {
+      await restoreMutation.mutateAsync(pendingRestore.id);
+      showSuccess('Vehicle restored');
+      setPendingRestore(null);
     } catch (error) {
       showError(getErrorMessage(error));
     }
@@ -175,7 +190,11 @@ export function VehiclesPage() {
                             Delete
                           </button>
                         </>
-                      ) : null}
+                      ) : (
+                        <button type="button" className="ghost-btn" onClick={() => setPendingRestore(vehicle)}>
+                          Restore
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -250,6 +269,15 @@ export function VehiclesPage() {
         confirmLabel="Soft-delete"
         onCancel={() => setPendingDelete(null)}
         onConfirm={confirmDelete}
+      />
+
+      <ConfirmDialog
+        open={!!pendingRestore}
+        title="Restore vehicle"
+        message={`Restore ${pendingRestore?.registrationNumber}? It can be booked again.`}
+        confirmLabel="Restore"
+        onCancel={() => setPendingRestore(null)}
+        onConfirm={confirmRestore}
       />
     </section>
   );

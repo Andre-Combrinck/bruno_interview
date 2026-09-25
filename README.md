@@ -103,7 +103,7 @@ dotnet test
 
 ## API overview
 
-- `GET/POST /api/vehicles`, `GET/PUT/DELETE /api/vehicles/{id}` (DELETE = soft delete)
+- `GET/POST /api/vehicles`, `GET/PUT/DELETE /api/vehicles/{id}` (DELETE = soft delete), `POST /api/vehicles/{id}/restore`
 - `GET/POST /api/customers`, `GET/PUT/DELETE /api/customers/{id}`
 - `GET/POST /api/bookings`, `GET /api/bookings/{id}`, `PATCH /api/bookings/{id}/status`, `DELETE /api/bookings/{id}`
 

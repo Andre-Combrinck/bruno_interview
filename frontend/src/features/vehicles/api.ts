@@ -71,3 +71,15 @@ export function useDeleteVehicle() {
     },
   });
 }
+
+export function useRestoreVehicle() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      await apiClient.post(`/api/vehicles/${id}/restore`);
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['vehicles'] });
+    },
+  });
+}
