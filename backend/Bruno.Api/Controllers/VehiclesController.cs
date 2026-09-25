@@ -59,6 +59,13 @@ public sealed class VehiclesController : ControllerBase
         await _mediator.Send(new SoftDeleteVehicleCommand(id), cancellationToken);
         return NoContent();
     }
+
+    [HttpPost("{id:guid}/restore")]
+    public async Task<IActionResult> Restore(Guid id, CancellationToken cancellationToken)
+    {
+        await _mediator.Send(new RestoreVehicleCommand(id), cancellationToken);
+        return NoContent();
+    }
 }
 
 public sealed record CreateVehicleRequest(string RegistrationNumber, string Make, string Model, int Year, decimal DailyRate);

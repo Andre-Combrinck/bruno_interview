@@ -63,6 +63,16 @@ public sealed class Vehicle : Entity
         IsDeleted = true;
     }
 
+    public void Restore()
+    {
+        if (!IsDeleted)
+        {
+            throw new DomainException("Vehicle is not deleted.");
+        }
+
+        IsDeleted = false;
+    }
+
     public void EnsureBookable()
     {
         if (IsDeleted)

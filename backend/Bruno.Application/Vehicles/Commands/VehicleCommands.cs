@@ -131,3 +131,27 @@ public sealed class SoftDeleteVehicleCommandHandler : IRequestHandler<SoftDelete
         await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 }
+
+public sealed record RestoreVehicleCommand(Guid Id) : IRequest;
+
+public sealed class RestoreVehicleCommandHandler : IRequestHandler<RestoreVehicleCommand>
+{
+    private readonly IVehicleRepository _vehicles;
+    private readonly IUnitOfWork _unitOfWork;
+
+    public RestoreVehicleCommandHandler(IVehicleRepository vehicles, IUnitOfWork unitOfWork)
+    {
+        _vehicles = vehicles;
+        _unitOfWork = unitOfWork;
+    }
+
+    public async Task Handle(RestoreVehicleCommand request, CancellationToken cancellationToken)
+    {
+        var vehicle = await _vehicles.GetByIdIncludingDeletedAsync(request.Id, cancellationToken)
+            ?? throw new DomainException("Vehicle not found.");
+
+        vehicle.Restore();
+        _vehicles.Update(vehicle);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+    }
+}
